@@ -1,4 +1,5 @@
 const std = @import("std");
+const handshake = @import("handshake.zig");
 
 const net = std.net;
 const base64 = std.base64;
@@ -30,15 +31,7 @@ pub fn handleClient(allocator: std.mem.Allocator, stream: net.Stream) !void {
 
     if (ws_key == null) return error.WebSocketKeyNotFound;
 
-    // Generate accept key
-    var sha1 = Sha1.init(.{});
-    sha1.update(ws_key.?);
-    sha1.update(WebSocketGUID);
-    var sha1_output: [Sha1.digest_length]u8 = undefined;
-    sha1.final(&sha1_output);
-
-    var accept_key_buf: [base64.standard.Encoder.calcSize(Sha1.digest_length)]u8 = undefined;
-    const accept_key = base64.standard.Encoder.encode(&accept_key_buf, &sha1_output);
+    const accept_key = try handshake.secAcceptKey(ws_key.?);
 
     // Send WebSocket handshake response
     const response = try std.fmt.allocPrint(allocator, "HTTP/1.1 101 Switching Protocols\r\n" ++

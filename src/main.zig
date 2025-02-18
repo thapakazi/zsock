@@ -1,5 +1,6 @@
 const std = @import("std");
 const websocket = @import("websocket.zig");
+const handshake = @import("handshake.zig");
 
 const net = std.net;
 const base64 = std.base64;
@@ -29,6 +30,10 @@ const WebSocketFrame = struct {
 };
 
 pub fn main() !void {
+    const ws_key = "dGhlIHNhbXBsZSBub25jZQ==";
+    const key = try handshake.secAcceptKey(ws_key);
+    std.log.info("Key: {s}", .{key});
+
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
     const allocator = gpa.allocator();
@@ -52,4 +57,11 @@ pub fn main() !void {
             std.log.err("Error handling client: {}", .{err});
         };
     }
+}
+
+test "example test" {
+    std.log.debug("Starting example test", .{});
+    // Your test logic here
+    std.log.debug("Finished example test", .{});
+    try std.testing.expect(false);
 }
