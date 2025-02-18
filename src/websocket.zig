@@ -168,8 +168,8 @@ fn sendFrame(allocator: std.mem.Allocator, stream: net.Stream, fin: bool, opcode
     const frame = try allocator.alloc(u8, header_len + payload.len);
     defer allocator.free(frame);
 
-    @memcpy(frame, header_buf[0..header_len]);
-    @memcpy(frame[header_len..], payload);
+    @memcpy(frame[0..header_len], header_buf[0..header_len]); // copy ws header at begining of frame
+    @memcpy(frame[header_len..], payload); // copy actual msg after header to frame
 
     try stream.writeAll(frame);
 }
